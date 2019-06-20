@@ -19,9 +19,10 @@ class CreatePostsTable extends Migration
             $table->unsignedInteger('user_id');
 
             $table->string('title');
+            $table->string('image')->nullable();
             $table->text('body');
             $table->timestamps();
-            
+
             $table->foreign('tenant_id')
                 ->references('id')
                 ->on('tenants')

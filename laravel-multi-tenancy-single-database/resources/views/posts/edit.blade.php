@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <h1>Cadastrar post</h1>
+    <h1>Editar post</h1>
 
     @if($errors->any())
         <div class="alert alert-danger">
@@ -21,23 +21,18 @@
             {{ session('success') }}
         </div>
     @endif
-    <form action="{{ route('posts.store') }}" method="post" enctype="multipart/form-data">
+    <form action="{{ route('posts.update', $post->id) }}" method="post">
         @csrf
+        <input type="hidden" name="_method" value="PUT">
         <div class="form-group">
             <label>
-                <input type="text" name="title" placeholder="Título" class="form-control">
+                <input type="text" name="title" placeholder="Título" class="form-control" value="{{ $post->title }}">
             </label>
         </div>
-
         <div class="form-group">
             <label>
-                <input type="file" name="image" class="form-control">
-            </label>
-        </div>
-
-        <div class="form-group">
-            <label>
-                <textarea cols="30" name="body" placeholder="Conteúdo" rows="5" class="form-control"></textarea>
+                <textarea cols="30" name="body" placeholder="Conteúdo" rows="5"
+                          class="form-control">{{ $post->body }}</textarea>
             </label>
         </div>
         <div class="form-group">

@@ -5,9 +5,20 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUpdatePostFormRequest;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
+    private $post;
+
+    public function __construct(Post $post)
+    {
+        $this->post = $post;
+
+        $this->middleware('auth');
+
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -15,7 +26,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::get();
+        $posts = $this->post->with('user.tenant')->latest()->paginate();
 
         return view('posts.index', compact('posts'));
     }
@@ -31,16 +42,28 @@ class PostController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  StoreUpdatePostFormRequest  $request
+     * @return mixed
      */
     public function store(StoreUpdatePostFormRequest $request)
     {
+        $data = $request->all();
+
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $name = Str::kebab($request->title);
+            $extension = $request->image->extension();
+            $nameImage = "{$name}.$extension";
+            $data['image'] = $nameImage;
+
+            $upload = $request->image->storeAs('posts', $nameImage);
+            if (!$upload) {
+                return redirect()->back()->with('errors', ['Falha no upload']);
+            }
+        }
+
         $post = $request->user()
             ->posts()
-            ->create($request->all());
+            ->create($data);
 
         return redirect()
             ->back()
@@ -56,7 +79,11 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        //
+        if (!$post = $this->post->find($id)) {
+            return redirect()->back();
+        }
+
+        return view('posts.show', compact('post'));
     }
 
     /**
@@ -67,7 +94,11 @@ class PostController extends Controller
      */
     public function edit($id)
     {
-        //
+        if (!$post = $this->post->find($id)) {
+            return redirect()->back();
+        }
+
+        return view('posts.edit', compact('post'));
     }
 
     /**
@@ -77,9 +108,15 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(StoreUpdatePostFormRequest $request, $id)
     {
-        //
+        $post = $this->post->find($id);
+
+        $post->update($request->all());
+
+        return redirect()
+            ->back()
+            ->withSuccess('Atualizado com sucesso!');
     }
 
     /**

@@ -4,11 +4,17 @@
 namespace App\Tenant;
 
 
+use App\Models\Tenant;
+
 class ManagerTenant
 {
     public function getTenantIdentify()
     {
-        //dd(auth()->user()->tenant->id);
         return auth()->user()->tenant->id;
+    }
+
+    public function getTenant(): Tenant
+    {
+        return auth()->user()->tenant;
     }
 }

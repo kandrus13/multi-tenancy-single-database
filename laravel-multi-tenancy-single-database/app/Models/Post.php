@@ -9,7 +9,7 @@ class Post extends Model
 {
     use TenantTrait;
 
-    protected $fillable = ['title', 'body', 'tenant_id', 'user_id'];
+    protected $fillable = ['title', 'body', 'tenant_id', 'user_id', 'image'];
 
     public function user()
     {
